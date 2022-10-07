@@ -86,6 +86,29 @@ The state file is used to cleanup created routes when:
 * IP Addresses change
 * Interface ID Changes
 
+## WSL Configuration
+Note, you may also need to configure DNS manually in the WSL2 guest. For Ubuntu proceed as follows:
+
+1. edit /etc/resolv.conf to contain:
+   ```
+   nameserver a.b.c.d
+   ```
+   where `a.b.c.d` is the DNS IP of your host network on the VPN. See [here](https://manpage.me/index.cgi?apropos=0&q=resolv.conf&sektion=0&manpath=FreeBSD+12-CURRENT+and+Ports&arch=default&format=html) for more details.
+
+2. Make the resolv.conf immutable by issuing:
+   ```bash
+   # chattr +i resolv.conf
+   ```
+   See [here](https://manpage.me/?q=chattr) for more details
+
+3. Prevent WSL from generating resolv.conf, by adding the following to `/etc/wsl.conf`
+   ```
+   [network]
+   generateResolvConf = false
+   ```
+   See [here](https://docs.microsoft.com/en-us/windows/wsl/wsl-config) for more details.
+
+4. Restart WSL to apply the above changes
 
 ## Installation
 
@@ -94,32 +117,61 @@ Configuration script each time a network connect or disconnect event occurs:
 
 1. Clone this repo to a `scripts` directory in the Users HOME (C:\Users\<username>)
 1. From the START menu, Open 'Task Scheduler' (Will need ADMIN on Windows)
-1. Click "Create Task" on Right Sidebar
-1. Set the Name to: `Update WSL2 Routing for VPN`, and ensure the 'Run with highest priveleges'
-checkbox is selected
-1. Select 'Triggers' Tab
-1. Click 'New' at bottom of Window
-1. Open 'Begin the task' drop-down and Select 'On an Event'. Next we need to enter the following
-to trigger on the 'Connect' Event
-  - Log: 'Microsoft-Windows-NetworkProfile/Operational'
-  - Source: 'NetworkProfile'
-  - Event ID: '10000'
-8. Click 'OK'
-8. Click 'New' at bottom of Window
-8. Open 'Begin the task' drop-down and Select 'On an Event'. Next we need to enter the following
-to trigger on the 'Disconnect' Event
-  - Log: 'Microsoft-Windows-NetworkProfile/Operational'
-  - Source: 'NetworkProfile'
-  - Event ID: '10001'
-11. Select 'Actions' Tab
-11. Click 'New'
-11. Configure Action:
-  - Action: 'Start a Program'
-  - Program/script: 'Powershell.exe'
-  - Add arguments: '-ExecutionPolicy Bypass -File %HOMEPATH%\scripts\configure-wsl-networking.ps1'
-14. Click 'OK'
-14. Select 'Conditions' Tab
-14. Uncheck box:
-  - Power -> Start the task only if the computer is on AC Power
-17. Click 'OK'
+1. Click "Create Task" on Right Sidebar and configure various tabs as described below
 
+   **General Tab**:
+
+   * Set the Name to: `Update WSL2 Routing for VPN`
+   * Select the checkbox 'Run with highest priveleges'
+
+   **Triggers Tab**:
+
+   Add three triggers as specified below
+   
+   _Trigger-1_:
+   * Click 'New' at bottom of Window
+   * Open 'Begin the task' drop-down
+   * Select 'On an Event'. 
+   * Next we need to enter the following to trigger on the 'Connect' Event
+      - Log: `Microsoft-Windows-NetworkProfile/Operational`
+      - Source: `NetworkProfile`
+      - Event ID: `10000`
+   * Click 'OK'
+
+   _Trigger-2_:
+   * Click 'New' at bottom of Window
+   * Open 'Begin the task' drop-down
+   * Select 'On an Event'. 
+   * Next we need to enter the following to trigger on the 'Disconnect' Event
+      - Log: `Microsoft-Windows-NetworkProfile/Operational`
+      - Source: `NetworkProfile`
+      - Event ID: `10001`
+   * Click 'OK'
+
+   _Trigger-3_:
+   * Click 'New' at bottom of Window
+   * Open 'Begin the task' drop-down
+   * Select 'On an Event'. 
+   * Next we need to enter the following to trigger on the 'Hyper-V VM Connect' Event
+      - Log: `System`
+      - Source: `Hyper-V-VmSwitch`
+      - Event ID: `232`
+   * Click 'OK'
+
+   **Action Tab**:
+   * Action: 'Start a Program'
+   * Program/script: 'Powershell.exe'
+   * Add arguments: '-ExecutionPolicy Bypass -File %HOMEPATH%\scripts\configure-wsl-networking.ps1'
+   * Click 'OK'
+
+   **Conditions Tab**:
+
+   * Uncheck box:
+     - Power -> Start the task only if the computer is on AC Power
+
+1. Click 'OK'
+
+## Troubleshooting
+
+### Task Scheduler
+If your task is not working properly, Open "Event Viewer", Navigate to "Windows Logs" -> "System". Observe, which events are logged when your WSL starts. Take the fields "Log", "Source", "Event ID" from the logged event and use them as trigger for the task.
