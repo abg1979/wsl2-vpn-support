@@ -13,6 +13,8 @@ Write-Output "===================="
 
 # Get list of IPs for the WSL Guest(s)
 Write-Output "Determining IP Addresses of WSL2 Guest(s) ..."
+# Using the HNS module from here https://www.powershellgallery.com/packages/HNS/0.2.4
+# It helps in getting the android subsystem have network as well.
 $wsl_guest_ips = (Get-HnsEndpoint | select -ExpandProperty IPAddress)
 Write-Output "[DEBUG] WSL2 Guest IP Addresses: Previous (Revised) = $previous_ips"
 Write-Output "[DEBUG] WSL2 Guest IP Addresses: Current  = $wsl_guest_ips"
