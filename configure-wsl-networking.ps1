@@ -7,6 +7,9 @@ $state_file = "$HOME\wsl-added-routes.txt"
 
 ########### End Configuration Parameters
 
+########### Start Transcript 
+Start-Transcript -Path .\wsl-config.log -Append -NoClobber -IncludeInvocationHeader
+
 Write-Output "===================="
 Write-Output "= WSL2 VPN Support ="
 Write-Output "===================="
@@ -107,3 +110,5 @@ foreach ($ip IN $previous_ips) {
 }
 
 Write-Output "Done"
+
+Stop-Transcript
