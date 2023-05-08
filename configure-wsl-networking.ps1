@@ -102,7 +102,7 @@ foreach ($ip IN $previous_ips) {
         if ($existing_routes) {
             Write-Output "Route already exists. Deleting it ..."
             # route delete $ip mask 255.255.255.255 $ip
-            Remove-NetRoute -DestinationPrefix $ip/32 -NextHop $ip
+            Remove-NetRoute -DestinationPrefix $ip/32 -NextHop $ip -Confirm:$false
         } else {
             Write-Output "Route does not exist."
         }
