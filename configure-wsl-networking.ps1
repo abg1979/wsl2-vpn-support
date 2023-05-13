@@ -56,7 +56,7 @@ if ($vpn_state -eq "Up") {
 
     # Get key metrics for the WSL Network Interface
     Write-Output "Determining WSL2 Interface parameters ..."
-    $wsl_interface_index = (Get-NetAdapter -Name "$wsl_interface_name" -IncludeHidden | Select-Object -ExpandProperty ifIndex)
+    $wsl_interface_index = (Get-NetAdapter -Name "$wsl_interface_name" -IncludeHidden -ErrorAction Ignore | Select-Object -ExpandProperty ifIndex)
     if ($wsl_interface_index) {
         Write-Output "WSL2 Interface Parameters: Index = $wsl_interface_index"
         Write-Output "Determining VPN Interface parameters ..."
