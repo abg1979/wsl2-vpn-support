@@ -1,7 +1,7 @@
 ########### Configuration Parameters
 
 $vpn_interface_desc = "PANGP"
-$wsl_interface_name = "vEthernet (WSL)"
+$wsl_interface_name = "vEthernet (WSL (Hyper-V firewall))"
 
 $state_file = "$HOME\wsl-added-routes.txt"
 
